@@ -1,0 +1,42 @@
+package com.bijoy.wetalk.Activites;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+
+import com.bijoy.wetalk.R;
+
+public class StartActivity extends AppCompatActivity {
+
+    AppCompatButton register_btn,signin_btn;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_start);
+
+        register_btn= findViewById(R.id.register_btn) ;
+        signin_btn = findViewById(R.id.signin_btn);
+
+        register_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(StartActivity.this,RegisterActivity.class));
+                finish();
+            }
+        });
+
+        signin_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //sign in activity nam er kono class nai,, class create koro register ac tgik hoisa
+                startActivity(new Intent(StartActivity.this,SignInActivity.class));
+                finish();
+            }
+        });
+
+    }
+}
