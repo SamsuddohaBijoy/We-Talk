@@ -12,6 +12,8 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
+import android.app.ActionBar;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -28,6 +30,7 @@ public class SignInActivity extends AppCompatActivity {
     TextView no_have_text;
 
     FirebaseAuth firebaseAuth;
+    ProgressDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +38,8 @@ public class SignInActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sign_in);
 
         firebaseAuth = FirebaseAuth.getInstance();
+        dialog = new ProgressDialog(SignInActivity.this);
+        dialog.setTitle("Please Wait...");
 
         user_email = findViewById(R.id.user_email);
         user_password = findViewById(R.id.user_password);
@@ -53,49 +58,65 @@ public class SignInActivity extends AppCompatActivity {
         signin_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+
                 String email = user_email.getText().toString().trim();
                 String password = user_password.getText().toString().trim();
 
-                if (email.isEmpty()) {
 
-                    ShowAlert("")
 
+                if (email.isEmpty()){
+                    ShowAlert("Email field can not be empty !");
                 }
                 else if (password.isEmpty()){
-                    ShowAlert(s:"Password field can not be empty !");
+                    ShowAlert("Password field can not be empty !");
                 }else if (password.length()<6){
-                    ShowAlert(s:"Password should be more then 6 !");
+                    ShowAlert("Password should be more then 6 !");
                 }else {
-                    firebaseAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    dialog.show();
+                    firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()){
-                                Toast.makeText(SignInActivity.this, "Sign in successfully", Toast.LENGTH_SHORT).show();
+
+                            dialog.dismiss();
+                            if (task.isSuccessful())
+                            {Toast.makeText(SignInActivity.this,"This account create successfully", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(SignInActivity.this,MainActivity.class));
+                                finish();
                             }
-                        }
+
+                            }
+
                     });
+
                 }
+
+
+
+
+
+            }
+        });
+    }
+
+    private void ShowAlert(String s) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(SignInActivity.this);
+
+        builder.setTitle("Error");
+        builder.setMessage(s);
+        builder.setIcon(R.drawable.ic_baseline_error_24);
+
+        builder.setPositiveButton("ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
             }
         });
 
-        private void ShowAlert(String s) {
+        AlertDialog alertDialog = builder.create();
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(SignInActivity.this);
-
-            builder.setTitle("Error");
-            builder.setMessage(s);
-            builder.setIcon(R.drawable.ic_baseline_error_24);
-
-            builder.setPositiveButton(text:"ok", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-
-                }
-            });
-
-            AlertDialog alertDialog = builder.create();
-
-            alertDialog.show();
-        }
-
+        alertDialog.show();
     }
+
+}

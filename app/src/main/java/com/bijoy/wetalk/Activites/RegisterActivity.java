@@ -13,13 +13,19 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.HashMap;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -32,12 +38,26 @@ public class RegisterActivity extends AppCompatActivity {
 
     FirebaseAuth firebaseAuth;
 
+    ProgressDialog dialog;
+
+    DatabaseReference databaseReference;
+
+    FirebaseUser firebaseUser;
+
+    String currentUser;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
         firebaseAuth = FirebaseAuth.getInstance();
+
+
+        databaseReference = FirebaseDatabase.getInstance().getReference("User");
+
+        dialog = new ProgressDialog(RegisterActivity.this);
+        dialog.setTitle("Please Wait...");
 
         user_text = findViewById(R.id.user_text);
         user_number = findViewById(R.id.user_number);
@@ -82,13 +102,36 @@ public class RegisterActivity extends AppCompatActivity {
                 }else if (password.length()<6){
                     ShowAlert("Password should be more then 6 !");
                 }else {
+                    dialog.show();
                     firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful())
-                            {Toast.makeText(RegisterActivity.this,"This account create successfully", Toast.LENGTH_SHORT).show();
-                                     startActivity(new Intent(RegisterActivity.this,SignInActivity.class));
-                                     finish();
+                            firebaseUser = firebaseAuth.getCurrentUser();
+                            if (firebaseUser!=null){
+                              currentUser =  firebaseUser.getUid();
+                            }
+                            dialog.dismiss();
+                            if (task.isSuccessful()) {
+
+                                HashMap<String, String> userMap = new HashMap<>();
+
+                                userMap.put("UserName", name);
+                                userMap.put("UserEmail", email);
+                                userMap.put("UserNumber", number);
+                                userMap.put("UserPassword", password);
+                                userMap.put("UserId", currentUser);
+
+                                databaseReference.setValue(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            Toast.makeText(RegisterActivity.this, "This account create successfully", Toast.LENGTH_SHORT).show();
+                                            startActivity(new Intent(RegisterActivity.this, SignInActivity.class));
+                                            finish();
+                                        }
+                                    }
+                                });
+
                             }else {
                                 String err = task.getException().getLocalizedMessage();
                                 ShowAlert(err);

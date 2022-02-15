@@ -8,10 +8,13 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.bijoy.wetalk.R;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class StartActivity extends AppCompatActivity {
 
     AppCompatButton register_btn,signin_btn;
+
+    FirebaseAuth firebaseAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,5 +41,22 @@ public class StartActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if(FirebaseAuth.getInstance().getCurrentUser()!=null){
+
+            startActivity(new Intent(StartActivity.this,MainActivity.class));
+
+
+            finish();
+
+        }else{
+            startActivity(new Intent(StartActivity.this,SignInActivity.class));
+            finish();
+        }
     }
 }
