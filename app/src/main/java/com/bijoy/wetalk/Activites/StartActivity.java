@@ -35,8 +35,8 @@ public class StartActivity extends AppCompatActivity {
         signin_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //sign in activity nam er kono class nai,, class create koro register ac tgik hoisa
-                startActivity(new Intent(StartActivity.this,SignInActivity.class));
+
+                startActivity(new Intent(StartActivity.this,MainActivity.class));
                 finish();
             }
         });
